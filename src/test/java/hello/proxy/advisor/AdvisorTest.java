@@ -13,6 +13,7 @@ import org.springframework.aop.MethodMatcher;
 import org.springframework.aop.Pointcut;
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.aop.support.DefaultPointcutAdvisor;
+import org.springframework.aop.support.NameMatchMethodPointcut;
 
 import java.lang.reflect.Method;
 
@@ -90,5 +91,23 @@ public class AdvisorTest {
         public boolean matches(Method method, Class<?> targetClass, Object... args) {
             throw new UnsupportedOperationException();
         }
+    }
+
+    @Test
+    @DisplayName("스프링이 제공하는 포인트컷")
+    void advisorTest3() {
+        ServiceInterface target = new ServiceImpl();
+        ProxyFactory proxyFactory = new ProxyFactory(target);
+
+        NameMatchMethodPointcut pointcut = new NameMatchMethodPointcut();
+        // 메서드 이름이 `save`인 것만 `Advice`가 적용된다.
+        pointcut.setMappedName("save");
+
+        DefaultPointcutAdvisor advisor = new DefaultPointcutAdvisor(pointcut, new TimeAdvice());
+        proxyFactory.addAdvisor(advisor);
+        ServiceInterface proxy = (ServiceInterface) proxyFactory.getProxy();
+
+        proxy.find();
+        proxy.save();
     }
 }
