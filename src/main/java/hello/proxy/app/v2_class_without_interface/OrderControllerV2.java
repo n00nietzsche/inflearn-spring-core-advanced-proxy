@@ -17,6 +17,7 @@ public class OrderControllerV2 {
 
     @GetMapping("/v2/request")
     public String request(String itemId) {
+        log.info("orderServiceClass={}", orderService.getClass());
         orderService.orderItem(itemId);
         return "ok";
     }
