@@ -10,6 +10,7 @@ import org.springframework.aop.Advisor;
 import org.springframework.aop.ClassFilter;
 import org.springframework.aop.MethodMatcher;
 import org.springframework.aop.Pointcut;
+import org.springframework.aop.aspectj.AspectJExpressionPointcut;
 import org.springframework.aop.support.DefaultPointcutAdvisor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,9 +23,18 @@ import java.lang.reflect.Method;
 @Import({AppV1Config.class, AppV2Config.class})
 public class AutoProxyConfig {
 
-    @Bean
+//    @Bean
     public Advisor advisor1(LogTrace logTrace) {
         return new DefaultPointcutAdvisor(new MyPointcut(), new LogTraceAdvice(logTrace));
+    }
+
+    @Bean
+    public Advisor advisor2(LogTrace logTrace) {
+        AspectJExpressionPointcut pointcut = new AspectJExpressionPointcut();
+        pointcut.setExpression("execution(* hello.proxy.app..*(..)) && " +
+                "!execution(* hello.proxy..noLog(..))");
+        LogTraceAdvice advice = new LogTraceAdvice(logTrace);
+        return new DefaultPointcutAdvisor(pointcut, advice);
     }
 
     static class MyPointcut implements Pointcut {
